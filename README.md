@@ -11,7 +11,7 @@
 ### 2. **개발 브랜치 (`dev`)**
 - `dev` 브랜치는 **테스트 브랜치**입니다.
 - 새로운 기능을 통합하고 테스트하는 데 사용됩니다.
-- 기능 브랜치에서 생성된 PR(Pull Request)만 `dev` 브랜치에 병합됩니다.
+- feature 브랜치에서 생성된 PR(Pull Request)만 `dev` 브랜치에 병합됩니다.
 
 ### 3. **feature 브랜치 (`feature-[name]-[feature_name]`)**
 - 각 기능 개발은 별도의 feature 브랜치에서 진행됩니다.
@@ -22,8 +22,8 @@
   - `name`: 개발자의 이름 또는 식별자.
   - `feature_name`: 개발 중인 기능의 간단한 설명.
   - e.g. feature-jiyoon-extract-constant
-- 기능 브랜치는 `dev` 브랜치에서 생성됩니다.
-- 개발과 초기 테스트가 완료되면 PR을 생성하여 기능 브랜치를 `dev` 브랜치에 병합합니다.
+- feature 브랜치는 `dev` 브랜치에서 생성됩니다.
+- 개발과 초기 테스트가 완료되면 PR을 생성하여 feature 브랜치를 `dev` 브랜치에 병합합니다.
 
 ### Merge Rules
 1. **feature 브랜치에서 `dev`로 병합**
