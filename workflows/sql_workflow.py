@@ -4,7 +4,7 @@ from models.context import Context
 from utils.data_utils import load_csv_to_sqlite
 from nodes.select_data_source import SelectDataNode
 from nodes.generate_sql import GenerateSQLNode
-from nodes.retrieve_from_web import retrieve_from_web
+from nodes.retrieve_from_web import WebSearchNode
 from nodes.verify_sql import VerifySQLNode
 from nodes.generate_final_answer import GenerateAnswerNode, handle_no_data
 from nodes.routing import get_data_source, get_sql_status
@@ -46,12 +46,13 @@ class SQLWorkflow:
         select_data_node = SelectDataNode(self.context)
         generate_sql_node = GenerateSQLNode(self.context)
         verify_sql_node = VerifySQLNode(self.context)
+        web_search_node = WebSearchNode(self.context)
         generate_answer_node = GenerateAnswerNode(self.context)
 
         # 노드 추가
         self.workflow.add_node("select_data_source", select_data_node.execute)
         self.workflow.add_node("generate_sql", generate_sql_node.execute)
-        self.workflow.add_node("retrieve_from_web", retrieve_from_web)
+        self.workflow.add_node("retrieve_from_web", web_search_node.execute)
         self.workflow.add_node("verify_sql", verify_sql_node.execute)  
         self.workflow.add_node("generate_final_answer", generate_answer_node.execute)
         self.workflow.add_node("handle_no_data", handle_no_data) 
