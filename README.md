@@ -45,5 +45,5 @@ tag: contents
   - `fix`: 버그 수정.
   - `refactor`: 기능 변경 없이 코드 구조 개선.
   - `test`: 테스트 또는 테스트 인프라 관련 변경.
-- **`내용`**: 변경 사항에 대한 간단한 설명.
+- **`contents`**: 변경 사항에 대한 간단한 설명.
 - e.g. `feature: introduce config` or `refactor: extract prompt`
