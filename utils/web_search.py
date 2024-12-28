@@ -4,7 +4,7 @@ import os
 
 from langchain_core.prompts import PromptTemplate
 from langchain_community.utilities import SerpAPIWrapper
-from models.llm import chatllm
+from models.llm import CHATLLM
 
 
 def web_search(
@@ -20,7 +20,7 @@ def web_search(
         input_variables=["query"],
     )
 
-    llm_chain = prompt | chatllm
+    llm_chain = prompt | CHATLLM
 
     search = SerpAPIWrapper(
         serpapi_api_key=os.getenv("SERPAPI_API_KEY"),

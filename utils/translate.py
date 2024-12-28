@@ -1,5 +1,5 @@
 from langchain_core.prompts import PromptTemplate
-from models.llm import chatllm
+from models.llm import CHATLLM
 
 
 
@@ -13,7 +13,7 @@ def ko_to_eng(
         input_variables=["query"],
     )
 
-    llm_chain = prompt | chatllm
+    llm_chain = prompt | CHATLLM
 
     output = llm_chain.run(query=query)
     return output

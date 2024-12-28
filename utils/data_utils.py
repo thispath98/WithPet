@@ -2,12 +2,6 @@ import sqlite3
 import pandas as pd
 import os
 
-csv_files = {
-    "data/내국인 관심 관광지_수정.csv": "local_tourist_spots",
-    "data/외국인 관심 관광지_수정.csv": "foreign_tourist_spots",
-    "data/busan_restrau_20to24_witch_eng_data.csv": "restaurants",
-}
-
 def load_csv_to_sqlite(csv_files, db_path=":memory:"):
     conn = sqlite3.connect(db_path)
 
@@ -23,10 +17,10 @@ def load_csv_to_sqlite(csv_files, db_path=":memory:"):
     
     return conn
 
-def filter_csv_with_sql(query: str):
+def filter_csv_with_sql(query: str, conn):
     try:
         # Execute the SQL query
-        result = pd.read_sql_query(query, load_csv_to_sqlite(csv_files))
+        result = pd.read_sql_query(query, conn)
         return result
     except Exception as e:
         return f"Error executing query: {e}"
