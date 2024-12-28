@@ -36,8 +36,6 @@
 
 ## Commit Convention
 
-명확하고 일관된 커밋 메시지를 위해 다음과 같은 규칙을 따릅니다:
-
 ### Format
 ```
 tag: contents
