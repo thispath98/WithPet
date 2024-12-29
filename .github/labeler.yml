@@ -1,0 +1,54 @@
+js:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.js"
+
+ts:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.ts"
+
+py:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.py"
+
+java:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.java"
+
+c:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.c"
+
+c++:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.cpp"
+
+c#:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.cs"
+
+swift:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.swift"
+
+kotlin:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.kt"
+
+go:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.go"
+
+elixir:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.exs"
