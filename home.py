@@ -85,11 +85,10 @@ tour_rag = SQLWorkflow(CHATLLM, llm_stream, conn)
 app = tour_rag.app
 
 # UI 구성
-st.title("TourGuideRAG")
-st.write("### Welcome!\n\nUse this chatbot to gather information for a trip to Busan~~!!!")
+st.title("부산 관광 가이드")
+st.write("### 부산 관광 가이드 챗봇에 오신 것을 환영합니다! 궁금하신 정보를 질문해주세요.")
+st.write("### 예시 질문: 10월 부산 날씨를 알려주세요. 부산역 근처 국밥 맛집을 알려주세요. 해운대 근처 시장을 알려주세요.")
 
-# 초기 메시지 및 이전 대화 기록 표시
-send_message("I'm ready. Ask away!", "ai", save=False)
 paint_history()
 
 # 사용자 입력 처리
@@ -102,7 +101,7 @@ if message:
         response = app.invoke(inputs)
         print(response)
 
-button = st.sidebar.button("draw image")
+button = st.sidebar.button("Show Workflow")
 if button:
     with st.sidebar:
         st.image(app.get_graph().draw_mermaid_png(), caption="Sunrise by the mountains")
