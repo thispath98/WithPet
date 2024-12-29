@@ -9,8 +9,6 @@ def main():
 
     initial_state = GraphState(
         question="광안리 근처 사진찍기 좋은 곳 추천해주세요",
-        trial_num=0,
-        sql_status="",
     )
 
     result = app.invoke(initial_state)

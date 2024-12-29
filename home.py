@@ -3,6 +3,7 @@ import streamlit as st
 from langchain_openai import OpenAI
 from models.llm import CHATLLM
 from workflows.sql_workflow import SQLWorkflow
+from utils.data_utils import load_csv_to_sqlite
 from langchain.callbacks.base import BaseCallbackHandler
 
 # 페이지 설정
@@ -66,6 +67,12 @@ OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 # st.write(st.secrets["LANGCHAIN_PROJECT"])
 # st.write(st.secrets["LANGCHAIN_API_KEY"])
 
+csv_files = {
+    "data/내국인 관심 관광지_수정.csv": "local_tourist_spots",
+    "data/외국인 관심 관광지_수정.csv": "foreign_tourist_spots",
+    "data/busan_restrau_20to24_witch_eng_data.csv": "restaurants",
+}
+
 # LLM 인스턴스 준비
 llm_stream = OpenAI(
     streaming=True,
@@ -73,8 +80,8 @@ llm_stream = OpenAI(
     openai_api_key=OPENAI_API_KEY,
 )
 
-# RAG 객체 생성
-tour_rag = SQLWorkflow(CHATLLM, llm_stream)
+conn = load_csv_to_sqlite(csv_files)
+tour_rag = SQLWorkflow(CHATLLM, llm_stream, conn)
 app = tour_rag.app
 
 # UI 구성
@@ -93,6 +100,7 @@ if message:
     inputs = {"question": message}
     with st.chat_message("ai"):
         response = app.invoke(inputs)
+        print(response)
 
 button = st.sidebar.button("draw image")
 if button:

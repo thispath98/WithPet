@@ -1,12 +1,11 @@
 from langgraph.graph import END, StateGraph
 from models.graph_state import GraphState
 from models.context import Context
-from utils.data_utils import load_csv_to_sqlite
 from nodes.select_data_source import SelectDataNode
 from nodes.generate_sql import GenerateSQLNode
 from nodes.retrieve_from_web import WebSearchNode
 from nodes.verify_sql import VerifySQLNode
-from nodes.generate_final_answer import GenerateAnswerNode, handle_no_data
+from nodes.generate_final_answer import GenerateAnswerNode, HandleNoDataNode
 from nodes.routing import get_data_source, get_sql_status
 
 class SQLWorkflow:
@@ -16,7 +15,7 @@ class SQLWorkflow:
     내부적으로 SQLite를 사용하여 CSV 데이터를 관리한다.
     """
 
-    def __init__(self, llm_chat, llm_stream):
+    def __init__(self, llm_chat, llm_stream, conn):
         """
         Args:
             llm_chat: 모델 function call(Structured LLM)을 활용할 수 있는 LLM (ex. ChatOpenAI)
@@ -25,22 +24,10 @@ class SQLWorkflow:
         self.llm_chat = llm_chat
         self.llm_stream = llm_stream
         self.workflow = StateGraph(GraphState)
-        self.conn = None
-        self.context = None
+        self.context = Context(llm_chat, llm_stream, conn)
         self.app = None
 
-        self._load_data()
         self._setup_workflow()
-
-    def _load_data(self):
-        """CSV 파일들을 로드하여 SQLite에 저장한다."""
-        csv_files = {
-            "data/내국인 관심 관광지_수정.csv": "local_tourist_spots",
-            "data/외국인 관심 관광지_수정.csv": "foreign_tourist_spots",
-            "data/busan_restrau_20to24_witch_eng_data.csv": "restaurants",
-        }
-        self.conn = load_csv_to_sqlite(csv_files)
-        self.context = Context(self.llm_chat, self.conn)
 
     def _setup_workflow(self):
         select_data_node = SelectDataNode(self.context)
@@ -48,6 +35,7 @@ class SQLWorkflow:
         verify_sql_node = VerifySQLNode(self.context)
         web_search_node = WebSearchNode(self.context)
         generate_answer_node = GenerateAnswerNode(self.context)
+        handle_no_data_node = HandleNoDataNode(self.context)
 
         # 노드 추가
         self.workflow.add_node("select_data_source", select_data_node.execute)
@@ -55,7 +43,7 @@ class SQLWorkflow:
         self.workflow.add_node("retrieve_from_web", web_search_node.execute)
         self.workflow.add_node("verify_sql", verify_sql_node.execute)  
         self.workflow.add_node("generate_final_answer", generate_answer_node.execute)
-        self.workflow.add_node("handle_no_data", handle_no_data) 
+        self.workflow.add_node("handle_no_data", handle_no_data_node.execute) 
 
         # 각 노드의 실행이 끝나면 종료(END)로 가는 엣지
         self.workflow.add_edge("generate_sql", "verify_sql")
