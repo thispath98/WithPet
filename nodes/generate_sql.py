@@ -9,7 +9,7 @@ class GenerateSQLNode(BaseNode):
         chatllm = self.context.llm
         datasource = state["data_source"]  # Example: 'local_tourist_spots' or 'foreign_tourist_spots'
         question = state["question"]
-        sql_status = state["sql_status"]
+        sql_status = state.get("sql_status", [])
         schema = schemas.get(datasource, {})
 
         if sql_status == 'retry':
