@@ -58,14 +58,6 @@ def paint_history() -> None:
 
 # OpenAI API 키 로드
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-# os.environ["LANGCHAIN_TRACING_V2"] = "true"
-# os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
-# os.environ["LANGCHAIN_PROJECT"] = "LangChain 프로젝트명"
-# os.environ["LANGCHAIN_API_KEY"] = "LangChain API KEY 입력"
-# st.write(st.secrets["LANGCHAIN_TRACING_V2"])
-# st.write(st.secrets["LANGCHAIN_ENDPOINT"])
-# st.write(st.secrets["LANGCHAIN_PROJECT"])
-# st.write(st.secrets["LANGCHAIN_API_KEY"])
 
 csv_files = {
     "data/내국인 관심 관광지_수정.csv": "local_tourist_spots",
