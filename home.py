@@ -85,9 +85,9 @@ tour_rag = SQLWorkflow(CHATLLM, llm_stream, conn)
 app = tour_rag.app
 
 # UI 구성
-st.title("부산 관광 가이드")
-st.write("### 부산 관광 가이드 챗봇에 오신 것을 환영합니다! 궁금하신 정보를 질문해주세요.")
-st.write("### 예시 질문: 10월 부산 날씨를 알려주세요. 부산역 근처 국밥 맛집을 알려주세요. 해운대 근처 시장을 알려주세요.")
+st.title("부산 관광 가이드🧳")
+st.write("🌟부산 관광 가이드 챗봇에 오신 것을 환영합니다! 궁금하신 정보를 질문해주세요.")
+st.write("🌟예시 질문: 10월 부산 날씨를 알려주세요. 부산역 근처 국밥 맛집을 알려주세요.")
 
 paint_history()
 
