@@ -1,68 +1,104 @@
 from langchain_core.prompts import PromptTemplate
+from configs.schemas import SCHEMAS
 
-# Template for SQL generation (initial attempt)
-sql_generation_template = PromptTemplate(
-    input_variables=["question", "datasource", "schema", "external_knowledge"],
-    template="""
-    You are an expert in generating SQL queries. Based on the user's question, external knowledge and the specified data source, generate an SQL query. 
+SOURCE_ROUTING_PROMPT = f"""
+You are an expert at routing a user question to the appropriate data source. The data sources are described below:
 
-    Data source: {datasource}
-    Table schema: {schema}
-    External knowledge:{external_knowledge}
+Return "pet_places" if the query is about finding or asking for facilities such as hospitals, museums, cafes, restaurants, hotels, or any other physical locations where services or activities are provided.
 
-    Ensure the query matches the schema of the data source and retrieves the most relevant information. Do not filter with extra columns that are not explicitly requested in the query.
-    Use the 'LIKE' operator instead of equal(=) to filter text-type columns such as MENU_NAME or reviews and utilize the 'IN' operator for multiple possible options.
-    Note that all columns other than those ending in English are Korean characters, and make sure that categorical columns are selected only in Possible values.
-    Let's think step by step; first divide the user query into several conditions, tailor each condition to a possible value in the schema, and then convert each condition into a SQL statement.
-    After the thoughts, provide the final SQL query in the <SQL> </SQL> tag.
+Return "not_relevant" if the query is not related to finding facilities, such as general knowledge questions or general chat.
+"""
 
-    For your information, I'll provide examples of query-answer pairs.
-
-    <QUERY> 부산역 근처 돼지국밥 맛집 알려주세요.
-    <ANSWER> "부산역 근처" indicates proximity to Busan Station. 부산역 is located in 동구. This can be addressed using the DISTRICT_NAME column.
-            "돼지국밥" specifies the type of food, which can be matched with the MENU_NAME column.
-            맛집" implies that the restaurant should have a high rating, likely using the RATING column.
-            <SQL> SELECT RESTAURANT_NAME_KOREAN, ADDRESS_KOREAN FROM restaurants WHERE DISTRICT_NAME = '동구' AND MENU_NAME LIKE '%돼지국밥%' ORDER BY RATING DESC LIMIT 5; </SQL>
-
-    <QUERY> 광안리 근처에서 아이들이랑 가기 좋은 식당 추천해주세요.
-    <ANSWER> "광안리 근처" indicates proximity to 광안리. 광안리 is in 수영구. This can be addressed using the DISTRICT_NAME column.
-            Childeren might needs menu for childeren, which can be matched with MENU_FOR_CHILDREN_YN column. This column has Boolean type.
-            <SQL> SELECT RESTAURANT_NAME_KOREAN, MENU_NAME FROM restaurants WHERE DISTRICT_NAME = '수영구' AND MENU_FOR_CHILDREN_YN = True ORDER BY RATING DESC LIMIT 5; </SQL>
-
-    <QUERY> 외국인 친구랑 갈만한 관광지 알려주세요.
-    <ANSWER> Foreign friends may like historical experience, which can be matched with the Major_Category column with '역사관광지'.
-            <SQL> SELECT Tourist_Spot_Name_Korean FROM foreign_tourist_spots WHERE Major_Category = '역사관광지' ORDER BY Number_of_Visit DESC LIMIT 5; </SQL>
-
-    <QUERY> 서구 근처에서 할 만한 액티비티 알려주세요.
-    <ANSWER> 서구 근처" indicates proximity to 서구. 서구 is connected to 사하구, 사상구, 동구, and 중구. This can be addressed using the District column.
-            "액티비티" specifies the type of tour, which can be matched with the Major_Category column with '육상 레포츠' '수상 레포츠' and '레포츠소개'.
-            <SQL> SELECT Tourist_Spot_Name_Korean FROM local_tourist_spots WHERE District IN ('사하구', '사상구', '동구', '중구') AND Major_Category IN ('육상 레포츠', '수상 레포츠', '레포츠소개') ORDER BY Number_of_Visit DESC LIMIT 5; </SQL>
-
-    <QUERY> {question}
-    <ANSWER>
-    """,
-)
 
 # Template for SQL generation (retry attempt)
-sql_retry_template = PromptTemplate(
+SQL_RETRY_TEMPLATE = PromptTemplate(
     input_variables=[
         "question",
-        "datasource",
+        "data_source",
+        "examples",
         "schema",
         "external_knowledge",
         "previous_answer",
     ],
     template="""
-    You are an expert in generating SQL queries. Based on the user's question, external knowledge, and the specified data source, generate an SQL query.
+You are an expert in generating SQL queries. Your task is to create SQL queries based on the user's question and the provided schema.
 
-    In a prior attempt, you generated a SQL query that returned no results. Relax constraints to retrieve relevant data.
+You must follow these rules:
+### Rules for SQL Generation:
+1. **Match Columns to Conditions**: Identify relevant columns in the schema that correspond to the conditions in the user's query. Use only columns specified in the schema.
+2. **Avoid Unnecessary Filters**: If part of the query has no directly corresponding column, do not add assumptions or irrelevant filters. Instead, retrieve all data using `SELECT * FROM {data_source}`.
+3. **Include Only Relevant Columns in WHERE Clause**: Only include columns in the `WHERE` clause that are directly related to the query. Do not infer conditions beyond what is explicitly asked in the query.
+4. **Filter Days with Specific Rules**: 
+   - For filtering days, use LIKE operation on the relevant column to match specific days:
+     - Saturday: `DAYTIME_COLUMN LIKE "%토%"`
+     - Sunday: `DAYTIME_COLUMN LIKE "%일요일%"`
+5. **Ensure Schema Accuracy**: Always ensure the column names in the query match those defined in the schema exactly.
+6. **SQL Tagging**: Wrap the generated SQL query between `<SQL>` and `</SQL>` tags to clearly separate it from other content.
 
-    Data source: {datasource}
-    Table schema: {schema}
-    External knowledge:{external_knowledge}
-    Prior SQL: {previous_answer}
-    User query: {question}
+In a prior turn, you have predicted a SQL, which returned no results. Your job now is to generate a new SQL to try again.
+In general, you should try to RELAX constraints.
 
-    Provide the final SQL query in the <SQL> </SQL> tag.
+Table schema: {schema}
+External knowledge:{external_knowledge}
+Prior sql : {previous_answer}
+
+For your information, I'll provide examples of query-answer pairs.
+{examples}
+
+<QUESTION> {question} </QUESTION>
+        """,
+)
+
+# Template for SQL generation (initial attempt)
+SQL_GENERATION_TEMPLATE = PromptTemplate(
+    input_variables=[
+        "question",
+        "data_source",
+        "examples",
+        "schema",
+        "external_knowledge",
+    ],
+    template="""
+You are an expert in generating SQL queries. Your task is to create SQL queries based on the user's question and the provided schema. You must follow these rules:
+
+### Rules for SQL Generation:
+1. **Match Columns to Conditions**: Identify relevant columns in the schema that correspond to the conditions in the user's query. Use only columns specified in the schema.
+2. **Avoid Unnecessary Filters**: If part of the query has no directly corresponding column, do not add assumptions or irrelevant filters. Instead, retrieve all data using `SELECT * FROM {data_source}`.
+3. **Include Only Relevant Columns in WHERE Clause**: Only include columns in the `WHERE` clause that are directly related to the query. Do not infer conditions beyond what is explicitly asked in the query.
+4. **Filter Days with Specific Rules**: 
+   - For filtering days, use LIKE operation on the relevant column to match specific days:
+     - Saturday: `DAYTIME_COLUMN LIKE "%토%"`
+     - Sunday: `DAYTIME_COLUMN LIKE "%일요일%"`
+5. **Ensure Schema Accuracy**: Always ensure the column names in the query match those defined in the schema exactly.
+6. **SQL Tagging**: Wrap the generated SQL query between `<SQL>` and `</SQL>` tags to clearly separate it from other content.
+
+
+Table schema: {schema}
+External knowledge:{external_knowledge}
+
+For your information, I'll provide examples of query-answer pairs.
+{examples}
+
+<QUESTION> {question} </QUESTION>
+    """,
+)
+
+ANSWER_GENERATION_TEMPLATE = PromptTemplate(
+    input_variables=[
+        "question",
+        "schema",
+        "data",
+    ],
+    template="""
+Based on the user's question: {question}
+From the table with schema:
+{schema}
+Retrieved information is:
+{data}
+Please provide a detailed and concise answer in Korean.
+Please include useful information like telephone number, homepage url, and full address.
+Format the number with dashes for readability (e.g., 02-1234-5678).
+If the data does not match the question completely, please explain the content of the retrieved data, but notify that it may not match the question.
+Only explain the data included in your answer.
     """,
 )
