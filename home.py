@@ -1,33 +1,20 @@
-import streamlit as st
-import os
-import time
-
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from models.llm import CHATLLM
 from workflows.sql_workflow import SQLWorkflow
-from configs.examples import EXAMPLES
 from langchain.callbacks.base import BaseCallbackHandler
 from langchain_community.vectorstores import FAISS
-from langchain_community.vectorstores import FAISS
-from langchain_core.tracers import LangChainTracer
-from langchain.callbacks.manager import CallbackManager
+
+import streamlit as st
 
 
 # OpenAI API 키 로드
 OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
 
-# Langsmith tracing을 위한 키 로드
-LANGCHAIN_API_KEY = st.secrets["LANGCHAIN_API_KEY"]
-LANGCHAIN_PROJECT = st.secrets["LANGCHAIN_PROJECT"]
-LANGCHAIN_TRACING_V2 = "true"
-LANGCHAIN_ENDPOINT = "https://api.smith.langchain.com"
-
-
 # 메시지 세션 스테이트 초기화
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
-st.set_page_config(page_title="반려동물 시설 가이드", page_icon="🐕")
+st.set_page_config(page_title="WithPet", page_icon="🐕")
 
 
 class ChatCallbackHandler(BaseCallbackHandler):
@@ -79,13 +66,11 @@ def paint_history() -> None:
     for msg in st.session_state["messages"]:
         send_message(msg["message"], msg["role"], save=False)
 
+
 @st.cache_resource
 def get_embeddings(api_key):
     return OpenAIEmbeddings(openai_api_key=api_key)
 
-
-tracer = LangChainTracer(project_name=LANGCHAIN_PROJECT)
-callback_manager = CallbackManager([tracer])
 
 chat_callback_handler = ChatCallbackHandler()
 
@@ -107,7 +92,7 @@ app = tour_rag.setup_workflow()
 st.markdown(
     """
     <h2 style='text-align: center; color: #FF914D;'>
-        🐾 반려동물 동반 시설 가이드 🐾
+        🐾 WithPet: 반려동물 동반 시설 가이드 🐾
     </h2>
     """,
     unsafe_allow_html=True,
@@ -132,9 +117,9 @@ st.markdown(
     ">
         <h5 style="color: #FF6B00;">💡 이용 가능한 질문 예시</h5>
         <ul style="font-size: 16px; color: #333;">
-            <li>🏥 <b>강남구 신사동</b>에 <b>일요일</b>에도 영업하는 동물병원</b>이 있나요?</li>
-            <li>☕ <b>부산 동구</b>에 <b>주차 가능한</b> <b>카페</b> 알려줘.</li>
-            <li>🏡 <b>인천</b>에 있는 <b>반려동물 추가 요금 없는 펜션</b>을 찾아주세요.</li>
+            <li>🏥 <b>강남구 신사동</b>에 <b>일요일</b>에도 영업하는 <b>동물병원</b>이 있나요?</li>
+            <li>☕ <b>부산 동구</b>에 <b>주차 가능한</b> <b>카페</b>를 알려주세요.</li>
+            <li>🏡 <b>인천</b>에 있는 <b>반려동물 추가 요금 없는 펜션</b> 찾아줘.</li>
         </ul>
     </div>
     """,
@@ -147,10 +132,10 @@ st.markdown(
             <i>※ 해당 챗봇이 제공하는 모든 시설은 반려동물 동반 가능 시설입니다.</i>
         </p>
     </div>
+    <br>
     """,
     unsafe_allow_html=True,
 )
-st.markdown("<br><br>", unsafe_allow_html=True)
 
 
 # Initialize session state for user selections
@@ -166,7 +151,21 @@ with st.sidebar:
 
     # Use `st.form` to prevent auto-rerun for filters
     with st.form("filter_form"):
-        st.markdown("### 📍 지역을 선택하세요")
+        st.markdown(
+            """
+            <h1 style="display: flex; justify-content: left; align-items: center;">
+                🚀 Quick Search 
+                <span style="font-size: 12px; vertical-align: sub; margin-left: 8px; cursor: pointer;" 
+                    title="지역과 시설 유형을 선택한 후 검색하기를 클릭하세요.">
+                    ℹ️
+                </span>
+            </h1>
+            <br>
+            """,
+            unsafe_allow_html=True,
+        )
+
+        st.markdown("### 📍 지역")
         city = st.selectbox(
             "지역 선택",
             ["서울", "부산", "인천", "대구", "대전", "광주", "울산", "세종", "제주"],
@@ -213,6 +212,7 @@ with st.sidebar:
             else:
                 selected_values.discard(key)  # Remove unselected option
 
+        st.markdown("<br>", unsafe_allow_html=True)
         submitted = st.form_submit_button("🔎 검색하기")
 
         if submitted:
@@ -221,8 +221,6 @@ with st.sidebar:
 
             query_text = f"{city} 지역의 {st.session_state.selected_category}{' ('+ ', '.join(st.session_state.selected_options)+ ')' if st.session_state.selected_options else ''}"
 
-            # 검색 버튼
-            st.markdown("<br>", unsafe_allow_html=True)
             st.session_state.inputs = {"question": query_text}
             st.session_state.trigger_search = True  # Flag to trigger app invoke
 
