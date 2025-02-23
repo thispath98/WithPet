@@ -1,5 +1,19 @@
-# TourGuideRAG
+# TourGuideRAG(WithPet)
 관광지(부산)의 맛집/관광지 알려주는 가이드 챗봇
+
+## .streamlit/secrets.toml guide
+```shell
+PROJECT_DIR="{project_dir}"
+CONNECTED_DIR="{connected_dir}"
+LANGCHAIN_API_KEY="{langchain_api_key}"
+LANGCHAIN_PROJECT="TourGuideRAG"
+OPENAI_API_KEY="{openai_api_key}"
+SERPAPI_API_KEY="{servapi_api_key}"
+LANGSMITH_API_KEY="{langsmith_api_key}"
+LANGSMITH_PROJECT="WithPet"
+```
+- project_dir: project directory(ex: /home/ubuntu)
+- connected_dir: data and faiss directory(ex: /home/ubuntu)
 
 ## Branch 전략
 

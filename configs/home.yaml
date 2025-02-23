@@ -1,0 +1,47 @@
+# @package _global_
+defaults:
+  - llms: llms
+  - prompts: prompts
+  - prompt_templates: prompt_templates
+  - schemas: schemas
+  - source_columns: source_columns
+  - hydra: hydra
+
+package_name: TourGuideRAG
+project_dir: ${oc.env:PROJECT_DIR}/${package_name}
+connected_dir: ${oc.env:CONNECTED_DIR}/${package_name}
+usage: withpet
+
+openai_api_key: ${oc.env:OPENAI_API_KEY}
+serpapi_api_key: ${oc.env:SERPAPI_API_KEY}
+
+llm:
+  model: gpt-4o
+  temperature: 0.0
+
+llm_stream:
+  model: gpt-4o
+  temperature: 0.0
+  streaming: True
+
+data_path: ${connected_dir}/data
+data_file_name: PET_PLACES
+
+prompt_type:
+  sql_generation_template: sql_generation_template
+  answer_generation_template: answer_generation_template
+
+vector_store_example: faiss_example
+vector_store_data: faiss_data
+
+web_search:
+  translate_template: "You are a professional translator. Given the query '{query}', provide the best result of Korean to English."
+  search_template: "You are a search assistant. Given the query '{query}', provide the best search results and a summary."
+  serpapi_api_key: ${serpapi_api_key}
+  serpapi_params:
+    engine: google
+
+project_name: ${package_name}-${usage}
+
+run_name: ${project_name}
+work_dir: ${hydra:runtime.cwd}

@@ -1,14 +1,20 @@
-from models.graph_state import GraphState
-from nodes.base_node import BaseNode
+from .base_node import BaseNode
+
+from ..modules.graph_state import GraphState
 
 
 class GetExampleNode(BaseNode):
-    def execute(self, state):
+    def execute(
+        self,
+        state: GraphState,
+    ) -> GraphState:
         data_source = state["data_source"]
         question = state["question"]
 
         examples_topk = self.context.vs_example.similarity_search(
-            question, k=10, filter={"source": data_source}
+            question,
+            k=10,
+            filter={"source": data_source},
         )
         examples_format = "\n\n".join(
             [

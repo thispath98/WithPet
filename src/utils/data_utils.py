@@ -1,9 +1,14 @@
-import sqlite3
-import pandas as pd
 import os
 
+import sqlite3
+from sqlite3 import Connection
+import pandas as pd
 
-def load_csv_to_sqlite(csv_files, db_path=":memory:"):
+
+def load_csv_to_sqlite(
+    csv_files: str,
+    db_path: str = ":memory:",
+) -> Connection:
     conn = sqlite3.connect(db_path)
 
     print(os.getcwd())
@@ -11,7 +16,12 @@ def load_csv_to_sqlite(csv_files, db_path=":memory:"):
     for file_path, table_name in csv_files.items():
         try:
             df = pd.read_csv(file_path)
-            df.to_sql(table_name, conn, index=False, if_exists="replace")
+            df.to_sql(
+                name=table_name,
+                con=conn,
+                index=False,
+                if_exists="replace",
+            )
             print(f"Loaded {file_path} into table '{table_name}'.")
         except Exception as e:
             print(f"Error loading {file_path} into table '{table_name}': {e}")
@@ -19,16 +29,22 @@ def load_csv_to_sqlite(csv_files, db_path=":memory:"):
     return conn
 
 
-def filter_csv_with_sql(query: str, conn):
+def filter_csv_with_sql(
+    query: str,
+    conn: Connection,
+) -> pd.DataFrame:
     try:
         # Execute the SQL query
-        result = pd.read_sql_query(query, conn)
+        result = pd.read_sql_query(
+            sql=query,
+            con=conn,
+        )
         return result
     except Exception as e:
         return f"Error executing query: {e}"
 
 
-def format_docs_with_metadata(docs):
+def format_docs_with_metadata(docs: pd.DataFrame) -> str:
     formatted_docs = []
     for i, doc in enumerate(docs):
         metadata_str = "\n".join(
@@ -42,7 +58,10 @@ def format_docs_with_metadata(docs):
     return "\n\n".join(formatted_docs)
 
 
-def format_dataframe(df, data_source):
+def format_dataframe(
+    df: pd.DataFrame,
+    data_source: str,
+) -> str:
     columns = (
         [
             "RESTAURANT_NAME_KOREAN",

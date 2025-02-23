@@ -1,0 +1,12 @@
+llm:
+  _target_: langchain_openai.ChatOpenAI
+  model: ${llm.model}
+  temperature: ${llm.temperature}
+  openai_api_key: ${openai_api_key}
+
+llm_stream:
+  _target_: langchain_openai.ChatOpenAI
+  model: ${llm_stream.model}
+  temperature: ${llm_stream.temperature}
+  streaming: ${llm_stream.streaming}
+  openai_api_key: ${openai_api_key}
