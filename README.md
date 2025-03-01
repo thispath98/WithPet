@@ -42,7 +42,7 @@
     ```
 
 ## 🎯 How to Use
-
+![withpet](https://github.com/user-attachments/assets/a3d6bc82-4998-455a-8263-6d8ee2b29e5e)
 ### 1. Ask Questions in Natural Language
 
 - Simply type your query in the chatbot’s text input box.
