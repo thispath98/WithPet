@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     try:
         for chunk in app.stream(
-            {"question": "서초구에서 8시 반에 미용 가능한 곳"},
+            {"question": "대형견이 놀 수 있는 수영장이 있는 펜션"},
             {"recursion_limit": 10},
             stream_mode="updates",
         ):

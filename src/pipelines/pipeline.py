@@ -129,10 +129,7 @@ def load_workflow(
     llm_stream = setup.get_llm_stream(chat_callback_handler) if stream else llm
     conn = setup.get_connection()
     vs_example = setup.get_vs_example(embeddings=embeddings)
-    if os.path.exists(config.vector_store_data):
-        vs_data = setup.get_vs_data(embeddings=embeddings)
-    else:
-        vs_data = None
+    vs_data = setup.get_vs_data(embeddings=embeddings)
 
     context = setup.get_context(
         llm=llm,
@@ -152,6 +149,9 @@ def load_workflow(
     answer_generation_template = setup.get_prompt_template(
         prompt_type=config.prompt_type.answer_generation_template
     )
+    question_refinement_template = setup.get_prompt_template(
+        prompt_type=config.prompt_type.question_refinement_template
+    )
 
     workflow = SQLWorkflow(
         context=context,
@@ -160,6 +160,7 @@ def load_workflow(
         sql_generation_template=sql_generation_template,
         source_columns=source_columns,
         answer_generation_template=answer_generation_template,
+        question_refinement_template=question_refinement_template,
     )
 
     app = workflow.setup_workflow()
@@ -351,8 +352,8 @@ def pipeline(
                 {"recursion_limit": 10},
             )
             if (
-                response["data_source"] == "not_relevant"
-                or response["sql_status"] == "no data"
+                response["data_source"] == "NOT_RELEVANT"
+                or response["sql_status"] == "NO_DATA"
             ):
                 send_message(
                     response["answer"],
