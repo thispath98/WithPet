@@ -18,7 +18,7 @@
 - **Frontend**: Streamlit
 - **Backend**: Python, LangChain, LangGraph
 - **LLM**: OpenAI GPT-4o (API)
-- **Database**: FAISS (Vector Store), SQLite (In-memory)
+- **Database**: FAISS/Pinecone (Vector Store), SQLite (In-memory)
 
 ## 🛠️ Setup
 
