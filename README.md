@@ -18,7 +18,7 @@
 - **Frontend**: Streamlit
 - **Backend**: Python, LangChain, LangGraph
 - **LLM**: OpenAI GPT-4o (API)
-- **Database**: FAISS (Vector Store), SQLite (In-memory)
+- **Database**: FAISS/Pinecone (Vector Store), SQLite (In-memory)
 
 ## 🛠️ Setup
 
@@ -36,6 +36,8 @@
    CONNECTED_DIR="{connected_dir}"
    OPENAI_API_KEY="{openai_api_key}"
    LANGSMITH_API_KEY="{langsmith_api_key}"
+   PINECONE_API_KEY="{pinecone_api_key}"
+   PINECONE_INDEX_NAME="{pinecone_index_name}"
    ```
    - project_dir: Full path to the project directory (e.g., /home/ubuntu/WithPet).
    - connected_dir: Directory for data and FAISS storage (e.g., /home/ubuntu/WithPet).
