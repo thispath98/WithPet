@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Union
 
 from sqlite3 import Connection
 
@@ -73,7 +73,7 @@ class SetUp:
         llm_stream: ChatOpenAI,
         conn: Connection,
         vs_example: FAISS,
-        vs_data: Optional[FAISS],
+        vs_data: Union[FAISS, PineconeVectorStore],
     ) -> Context:
         context = Context(
             llm=llm,
