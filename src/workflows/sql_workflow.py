@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from langchain_core.prompts import PromptTemplate
-from langgraph.graph import StateGraph, END
+from langgraph.graph import StateGraph, START, END
 from langgraph.graph.state import CompiledStateGraph
 
 from ..modules.graph_state import GraphState
@@ -58,7 +58,9 @@ class SQLWorkflow:
             schemas=self.schemas,
             source_routing_template=self.source_routing_template,
         )
-        get_example_node = GetExampleNode(context=self.context)
+        get_example_node = GetExampleNode(
+            context=self.context,
+        )
         generate_sql_node = GenerateSQLNode(
             context=self.context,
             sql_generation_template=self.sql_generation_template,
@@ -81,68 +83,25 @@ class SQLWorkflow:
         handle_no_data_node = HandleNoDataNode(context=self.context)
         handle_not_relevant_node = HandleNotRelevantNode(context=self.context)
 
-        self.workflow.add_node(
-            "select_data_source",
-            select_data_node.execute,
-        )
-        self.workflow.add_node(
-            "get_example",
-            get_example_node.execute,
-        )
-        self.workflow.add_node(
-            "generate_sql",
-            generate_sql_node.execute,
-        )
-        self.workflow.add_node(
-            "execute_sql",
-            execute_sql_node.execute,
-        )
-        self.workflow.add_node(
-            "rewrite_question",
-            rewrite_question_node.execute,
-        )
-        self.workflow.add_node(
-            "perform_rag",
-            perform_rag_node.execute,
-        )
-        self.workflow.add_node(
-            "generate_final_answer",
-            generate_answer_node.execute,
-        )
-        self.workflow.add_node(
-            "handle_no_data",
-            handle_no_data_node.execute,
-        )
-        self.workflow.add_node(
-            "handle_not_relevant",
-            handle_not_relevant_node.execute,
-        )
+        # 노드 정의
+        self.workflow.add_node("select_data_source", select_data_node.execute)
+        self.workflow.add_node("get_example", get_example_node.execute)
+        self.workflow.add_node("generate_sql", generate_sql_node.execute)
+        self.workflow.add_node("execute_sql", execute_sql_node.execute)
+        self.workflow.add_node("rewrite_question", rewrite_question_node.execute)
+        self.workflow.add_node("perform_rag", perform_rag_node.execute)
+        self.workflow.add_node("generate_final_answer", generate_answer_node.execute)
+        self.workflow.add_node("handle_no_data", handle_no_data_node.execute)
+        self.workflow.add_node("handle_not_relevant", handle_not_relevant_node.execute)
 
-        self.workflow.add_edge(
-            "get_example",
-            "generate_sql",
-        )
-        self.workflow.add_edge(
-            "generate_sql",
-            "execute_sql",
-        )
-        self.workflow.add_edge(
-            "rewrite_question",
-            "perform_rag",
-        )
-        self.workflow.add_edge(
-            "perform_rag",
-            "generate_final_answer",
-        )
-        self.workflow.add_edge(
-            "generate_final_answer",
-            END,
-        )
-        self.workflow.add_edge(
-            "handle_no_data",
-            END,
-        )
+        # 엣지 정의
+        self.workflow.add_edge("get_example", "generate_sql")
+        self.workflow.add_edge("generate_sql", "execute_sql")
+        self.workflow.add_edge("rewrite_question", "perform_rag")
+        self.workflow.add_edge("perform_rag", "generate_final_answer")
 
+        # 조건부 분기 정의
+        # 데이터 소스 선택 (PET_PLACES, NOT_RELEVANT)
         self.workflow.add_conditional_edges(
             "select_data_source",
             self.check_data_source,
@@ -151,6 +110,7 @@ class SQLWorkflow:
                 "NOT_RELEVANT": "handle_not_relevant",
             },
         )
+        # SQL 재생성, query match, no match
         self.workflow.add_conditional_edges(
             "execute_sql",
             self.check_sql_status,
@@ -161,8 +121,17 @@ class SQLWorkflow:
             },
         )
 
-        self.workflow.set_entry_point("select_data_source")
+        # 그래프 시작 지점
+        self.workflow.add_edge(START, "select_data_source")
+
+        # 그래프 끝 지점
+        self.workflow.add_edge("handle_not_relevant", END)
+        self.workflow.add_edge("generate_final_answer", END)
+        self.workflow.add_edge("handle_no_data", END)
+
+        # 그래프 컴파일
         self.app = self.workflow.compile()
+
         return self.app
 
     def check_data_source(
