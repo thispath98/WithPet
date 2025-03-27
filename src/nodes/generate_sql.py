@@ -1,10 +1,15 @@
+from pydantic import BaseModel, Field
 from langchain_core.prompts import PromptTemplate
 
 from .base_node import BaseNode
-
 from ..modules.context import Context
 from ..modules.graph_state import GraphState
-from ..modules.response_schema import SQLQuery
+
+
+class SQLQuery(BaseModel):
+    sql: str = Field(
+        description="The generated SQL query without any explanation.",
+    )
 
 
 class GenerateSQLNode(BaseNode):

@@ -1,12 +1,15 @@
-from typing import Dict
-
+from pydantic import BaseModel, Field
 from langchain_core.prompts import PromptTemplate
 
 from .base_node import BaseNode
-
 from ..modules.context import Context
 from ..modules.graph_state import GraphState
-from ..modules.response_schema import RefinedQuestion
+
+
+class RefinedQuestion(BaseModel):
+    question: str = Field(
+        description="The refined user question based on the requirements.",
+    )
 
 
 class RewriteQuestionNode(BaseNode):

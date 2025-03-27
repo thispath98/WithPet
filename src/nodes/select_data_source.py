@@ -1,12 +1,17 @@
-from typing import Dict
+from typing import Dict, Literal
 
+from pydantic import BaseModel, Field
 from langchain_core.prompts import PromptTemplate
 
 from .base_node import BaseNode
-
 from ..modules.context import Context
 from ..modules.graph_state import GraphState
-from ..modules.response_schema import QueryRouter
+
+
+class QueryRouter(BaseModel):
+    datasource: Literal["PET_PLACES", "NOT_RELEVANT"] = Field(
+        description="Given a user question choose which datasource would be most relevant for answering their question",
+    )
 
 
 class SelectDataNode(BaseNode):
